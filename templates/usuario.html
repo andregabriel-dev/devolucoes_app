@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Gestão de Usuários</h2>
+    <a href="{{ url_for('novo_usuario') }}" class="btn btn-success">➕ Novo Usuário</a>
+</div>
+
+<hr>
+
+{% if usuarios %}
+    {% for u in usuarios %}
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="margin: 0; font-size: 18px;"><b>{{ u.nome }}</b></p>
+                <p style="margin: 5px 0; color: #666; font-size: 14px;">Email: {{ u.email }}</p>
+                <span class="status-badge" style="background: #e0e0e0; color: #333;">
+                    Perfil: {{ u.perfil.upper() }}
+                </span>
+            </div>
+            
+            <div>
+                <a href="{{ url_for('editar_usuario', id=u.id) }}" class="btn btn-primary" style="font-size: 12px;">
+                    ✏️ Editar Dados
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <p>Nenhum usuário cadastrado além do administrador.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

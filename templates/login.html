@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MIC | Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="margin:0;">
+    <div class="login-page">
+        <div class="login-sidebar">
+            <h2 style="text-align: center; color: #333;">Seja bem-vindo ao<br>MIC DEVOLUÇÕES</h2>
+            <form method="POST">
+                <label>E-mail</label>
+                <input type="email" name="email" required>
+                <label>Senha</label>
+                <input type="password" name="senha" required>
+                <button type="submit" class="btn btn-success" style="width:100%; margin-top:20px;">ENTRAR</button>
+            </form>
+        </div>
+        <div class="login-bg"></div>
+    </div>
+</body>
+</html>

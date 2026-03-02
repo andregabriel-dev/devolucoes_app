@@ -1,0 +1,14 @@
+:root { --primary: #2c3e50; --success: #27ae60; --danger: #e74c3c; }
+body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; }
+
+/* Estilo Login Lateral */
+.login-page { display: flex; height: 100vh; }
+.login-sidebar { width: 400px; background: white; padding: 60px; display: flex; flex-direction: column; justify-content: center; box-shadow: 10px 0 20px rgba(0,0,0,0.05); z-index: 10; }
+.login-bg { flex: 1; background: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174') no-repeat center center; background-size: cover; }
+
+.header-box { background: var(--primary); color: white; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
+.btn { padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; }
+.btn-success { background: var(--success); color: white; }
+.btn-logout { background: var(--danger); color: white; }
+input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }

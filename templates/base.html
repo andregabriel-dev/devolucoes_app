@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema MIC - Devoluções</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header-box">
+            <div class="logo-empresa">
+                MIC | DEVOLUÇÕES
+            </div>
+            {% if session['user_id'] %}
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Sair</a>
+            {% endif %}
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+{% if request.endpoint not in ['login', 'dashboard'] %}
+    <a href="{{ url_for('dashboard') }}" class="btn-back">⬅️ Voltar ao Início</a>
+{% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

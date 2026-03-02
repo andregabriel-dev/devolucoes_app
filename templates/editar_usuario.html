@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="max-width: 500px; margin: 20px auto;">
+    <h2>✏️ Editar Usuário: {{ u.nome }}</h2>
+    <hr>
+    
+    <form method="POST">
+        <label>Nome Completo</label>
+        <input type="text" name="nome" value="{{ u.nome }}" required>
+
+        <label>E-mail</label>
+        <input type="email" name="email" value="{{ u.email }}" required>
+
+        <label>Perfil de Acesso</label>
+        <select name="perfil" required>
+            <option value="vendedor" {% if u.perfil == 'vendedor' %}selected{% endif %}>Vendedor</option>
+            <option value="conferente" {% if u.perfil == 'conferente' %}selected{% endif %}>Conferente</option>
+            <option value="gerente" {% if u.perfil == 'gerente' %}selected{% endif %}>Gerente</option>
+            <option value="financeiro" {% if u.perfil == 'financeiro' %}selected{% endif %}>Financeiro</option>
+        </select>
+
+        <label>Nova Senha (deixe em branco para manter a atual)</label>
+        <input type="password" name="senha" placeholder="******">
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-success" style="width: 100%;">Salvar Alterações</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
