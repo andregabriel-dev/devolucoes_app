@@ -104,11 +104,9 @@ def nova_devolucao():
         for arquivo in arquivos:
             if arquivo and arquivo.filename != '':
                 fname = secure_filename(arquivo.filename)
-                # Adiciona ID da devolução no nome para evitar conflito
                 nome_unico = f"{nova.id}_{fname}"
                 arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_unico))
-                
-                # Salvar na tabela de PDFs
+        
                 pdf = DevolucaoPDF(
                     devolucao_id=nova.id,
                     nome_arquivo=nome_unico
