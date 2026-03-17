@@ -16,7 +16,10 @@ from io import BytesIO
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+# --- CORREÇÃO: caminho absoluto para uploads ---
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db.init_app(app)
@@ -86,7 +89,6 @@ def dashboard():
 @roles_required('vendedor', 'conferente', 'gerente')
 def nova_devolucao():
     if request.method == 'POST':
-        # Criar a devolução primeiro (sem os PDFs ainda)
         nova = Devolucao(
             cliente=request.form['cliente'], 
             nf_cliente=request.form['nf_cliente'],
@@ -96,19 +98,16 @@ def nova_devolucao():
             vendedor_id=session['user_id']
         )
         db.session.add(nova)
-        db.session.flush()  # Pega o ID sem commitar ainda
+        db.session.flush()
         
-        # Processar múltiplos arquivos PDF
-        arquivos = request.files.getlist('pdf_notas')  # Note: nome mudado para plural
+        arquivos = request.files.getlist('pdf_notas')
         
         for arquivo in arquivos:
             if arquivo and arquivo.filename != '':
                 fname = secure_filename(arquivo.filename)
-                # Adiciona ID da devolução no nome para evitar conflito
                 nome_unico = f"{nova.id}_{fname}"
                 arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_unico))
                 
-                # Salvar na tabela de PDFs
                 pdf = DevolucaoPDF(
                     devolucao_id=nova.id,
                     nome_arquivo=nome_unico
@@ -301,7 +300,7 @@ def gerar_relatorio_pdf():
                      as_attachment=True,
                      mimetype='application/pdf')
 
-# --- Bloco de Auto-Setup para o Render ---
+# --- Bloco de Auto-Setup ---
 def inicializar_usuarios():
     usuarios_fixos = [
         {"nome": "André", "email": "andre.oliveira@mic.ind.br", "perfil": "gerente"},
