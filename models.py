@@ -39,3 +39,12 @@ class Devolucao(db.Model):
     data_recebimento = db.Column(db.DateTime)
     baixado_por = db.Column(db.String(100))
     data_baixa = db.Column(db.DateTime)
+
+class DevolucaoPDF(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    devolucao_id = db.Column(db.Integer, db.ForeignKey('devolucao.id'), nullable=False)
+    nome_arquivo = db.Column(db.String(200), nullable=False)
+    data_upload = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relacionamento
+    devolucao = db.relationship('Devolucao', backref='pdfs')

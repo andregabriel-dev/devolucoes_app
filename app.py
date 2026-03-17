@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, redirect, url_for, request, session, flash, send_file
 from config import Config
-from models import db, Usuario, Devolucao
+from models import db, Usuario, Devolucao, DevolucaoPDF
 from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -86,17 +86,38 @@ def dashboard():
 @roles_required('vendedor', 'conferente', 'gerente')
 def nova_devolucao():
     if request.method == 'POST':
-        f = request.files.get('pdf_nota')
-        fname = secure_filename(f.filename) if f and f.filename != '' else None
-        if fname: f.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
-        
+        # Criar a devolução primeiro (sem os PDFs ainda)
         nova = Devolucao(
-            cliente=request.form['cliente'], nf_cliente=request.form['nf_cliente'],
-            nf_interna=request.form['nf_interna'], valor=float(request.form['valor']),
-            motivo=request.form['motivo'], pdf_nota=fname, vendedor_id=session['user_id']
+            cliente=request.form['cliente'], 
+            nf_cliente=request.form['nf_cliente'],
+            nf_interna=request.form['nf_interna'], 
+            valor=float(request.form['valor']),
+            motivo=request.form['motivo'], 
+            vendedor_id=session['user_id']
         )
-        db.session.add(nova); db.session.commit()
+        db.session.add(nova)
+        db.session.flush()  # Pega o ID sem commitar ainda
+        
+        # Processar múltiplos arquivos PDF
+        arquivos = request.files.getlist('pdf_notas')  # Note: nome mudado para plural
+        
+        for arquivo in arquivos:
+            if arquivo and arquivo.filename != '':
+                fname = secure_filename(arquivo.filename)
+                # Adiciona ID da devolução no nome para evitar conflito
+                nome_unico = f"{nova.id}_{fname}"
+                arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_unico))
+                
+                # Salvar na tabela de PDFs
+                pdf = DevolucaoPDF(
+                    devolucao_id=nova.id,
+                    nome_arquivo=nome_unico
+                )
+                db.session.add(pdf)
+        
+        db.session.commit()
         return redirect(url_for('dashboard'))
+    
     return render_template('nova_devolucao.html')
 
 @app.route('/conferir_nota/<int:id>')

@@ -51,13 +51,13 @@
         <div style="margin: 15px 0;">
             <p style="margin: 5px 0;"><b>Valor:</b> R$ {{ "%.2f"|format(d.valor) }}</p>
             <p style="margin: 5px 0;"><b>Motivo:</b> {{ d.motivo }}</p>
-            {% if d.pdf_nota %}
-                <p style="margin-top: 10px;">
-                    <a href="{{ url_for('static', filename='uploads/' + d.pdf_nota) }}" target="_blank" style="color: #2980b9; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
-                        <span>📄</span> Visualizar PDF da Nota
-                    </a>
-                </p>
-            {% endif %}
+            <!-- Se tiver PDFs -->
+                {% if d.pdfs %}
+                    {% for pdf in d.pdfs %}
+                         <a href="{{ url_for('static', filename='uploads/' + pdf.nome_arquivo) }}" 
+                             target="_blank" class="btn btn-small">📄 Ver PDF {{ loop.index }}</a>
+                     {% endfor %}
+                {% endif %}
         </div>
 
         <div style="font-size:12px; color:#555; background:#fcfcfc; padding:12px; border-radius:8px; border: 1px solid #eee; border-left: 4px solid #3498db;">
