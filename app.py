@@ -313,7 +313,8 @@ def inicializar_usuarios():
         {"nome": "Talita", "email": "talita.stevanelli@mic.ind.br", "perfil": "vendedor"},
         {"nome": "Kevilly", "email": "kevvilly.dantas@mic.ind.br", "perfil": "vendedor"},
         {"nome": "Viviane", "email": "viviane.santos@mic.ind.br", "perfil": "vendedor"},
-        {"nome": "Francielle", "email": "francielle.oliveira@mic.ind.br", "perfil": "vendedor"}
+        {"nome": "Francielle", "email": "francielle.oliveira@mic.ind.br", "perfil": "vendedor"},
+        {"nome": "Thais", "email": "thais.kovacic@mic.ind.br", "perfil": "gerente"},
     ]
 
     with app.app_context():
