@@ -28,6 +28,7 @@ class Devolucao(db.Model):
     pdf_nota = db.Column(db.String(200))
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
     vendedor_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
+    vendedor = db.relationship('Usuario', foreign_keys=[vendedor_id])
 
     # Auditoria de Processo
     conferido_por = db.Column(db.String(100))

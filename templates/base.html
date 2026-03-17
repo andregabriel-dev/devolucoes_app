@@ -11,7 +11,12 @@
                 MIC | DEVOLUÇÕES
             </div>
             {% if session['user_id'] %}
-                <a href="{{ url_for('logout') }}" class="btn btn-logout">Sair</a>
+                <div class="menu-nav">
+                    {% if session['perfil'] == 'gerente' %}
+                        <a href="{{ url_for('relatorio') }}" class="btn-relatorio">📊 Relatório</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+                </div>
             {% endif %}
         </div>
 
@@ -25,9 +30,9 @@
             {% endif %}
         {% endwith %}
 
-{% if request.endpoint not in ['login', 'dashboard'] %}
-    <a href="{{ url_for('dashboard') }}" class="btn-back">⬅️ Voltar ao Início</a>
-{% endif %}
+        {% if request.endpoint not in ['login', 'dashboard'] %}
+            <a href="{{ url_for('dashboard') }}" class="btn-back">⬅️ Voltar ao Início</a>
+        {% endif %}
 
         {% block content %}{% endblock %}
     </div>
