@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, redirect, url_for, request, session, flash, send_file
 from config import Config
 from models import db, Usuario, Devolucao, DevolucaoPDF
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
 
@@ -26,6 +26,12 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+# --- Fuso horário de Brasília (UTC-3) ---
+BRASILIA = timezone(timedelta(hours=-3))
+
+def agora_brasilia():
+    return datetime.now(timezone.utc).astimezone(BRASILIA).replace(tzinfo=None)
 
 # Decorators
 def login_required(f):
@@ -123,14 +129,14 @@ def nova_devolucao():
 @roles_required('conferente', 'gerente')
 def conferir_nota(id):
     d = Devolucao.query.get_or_404(id)
-    d.status, d.conferido_por, d.data_conferencia = "aguardando_aprovacao", session['nome'], datetime.now()
+    d.status, d.conferido_por, d.data_conferencia = "aguardando_aprovacao", session['nome'], agora_brasilia()
     db.session.commit(); return redirect(url_for('dashboard'))
 
 @app.route('/aprovar_envio/<int:id>')
 @roles_required('gerente')
 def aprovar_envio(id):
     d = Devolucao.query.get_or_404(id)
-    d.status, d.aprovado_por, d.data_aprovacao = "em_transito", session['nome'], datetime.now()
+    d.status, d.aprovado_por, d.data_aprovacao = "em_transito", session['nome'], agora_brasilia()
     db.session.commit(); return redirect(url_for('dashboard'))
 
 @app.route('/receber_mercadoria/<int:id>')
@@ -139,7 +145,7 @@ def receber_mercadoria(id):
     d = Devolucao.query.get_or_404(id)
     d.status = "entregue_fiscal"
     d.recebido_por = session['nome']
-    d.data_recebimento = datetime.now()
+    d.data_recebimento = agora_brasilia()
     db.session.commit()
     return redirect(url_for('dashboard'))
 
@@ -147,7 +153,7 @@ def receber_mercadoria(id):
 @roles_required('financeiro')
 def baixar_boleto(id):
     d = Devolucao.query.get_or_404(id)
-    d.status, d.baixado_por, d.data_baixa = "finalizado_pago", session['nome'], datetime.now()
+    d.status, d.baixado_por, d.data_baixa = "finalizado_pago", session['nome'], agora_brasilia()
     db.session.commit(); return redirect(url_for('dashboard'))
 
 # --- USUÁRIOS ---
@@ -220,6 +226,7 @@ def gerar_relatorio_pdf():
                            topMargin=2*cm, bottomMargin=2*cm)
     
     styles = getSampleStyleSheet()
+
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
@@ -227,6 +234,21 @@ def gerar_relatorio_pdf():
         textColor=colors.HexColor('#2c3e50'),
         spaceAfter=20,
         alignment=1
+    )
+
+    # Estilo para células com quebra de linha automática
+    cell_style = ParagraphStyle(
+        'CellStyle',
+        parent=styles['Normal'],
+        fontSize=8,
+        leading=11,
+        wordWrap='CJK',
+    )
+
+    cell_style_center = ParagraphStyle(
+        'CellStyleCenter',
+        parent=cell_style,
+        alignment=1,
     )
     
     elements = []
@@ -236,33 +258,46 @@ def gerar_relatorio_pdf():
     elements.append(Paragraph(f"<b>Total de registros:</b> {len(devolucoes)}", styles['Normal']))
     elements.append(Spacer(1, 20))
     
-    data = [['Data Entrada', 'Cliente', 'Vendedor', 'NF Cliente', 'NF Interna', 'Status', 'Valor']]
+    # Cabeçalho
+    data = [[
+        Paragraph('<b>Data Entrada</b>', cell_style_center),
+        Paragraph('<b>Cliente</b>', cell_style_center),
+        Paragraph('<b>Vendedor</b>', cell_style_center),
+        Paragraph('<b>NF Cliente</b>', cell_style_center),
+        Paragraph('<b>NF Interna</b>', cell_style_center),
+        Paragraph('<b>Status</b>', cell_style_center),
+        Paragraph('<b>Valor</b>', cell_style_center),
+    ]]
     
     for d in devolucoes:
         vendedor_nome = d.vendedor.nome if d.vendedor else '-'
+        # Quebra as NFs em linhas separadas quando há múltiplos valores
+        nf_cliente = (d.nf_cliente or '-').replace(' / ', '\n')
+        nf_interna = (d.nf_interna or '-').replace(' / ', '\n')
         data.append([
-            d.data_criacao.strftime('%d/%m/%Y'),
-            d.cliente[:30] if d.cliente else '-',
-            vendedor_nome[:20],
-            d.nf_cliente or '-',
-            d.nf_interna or '-',
-            d.status.replace('_', ' ').title()[:15],
-            f"R$ {d.valor:.2f}" if d.valor else "R$ 0.00"
+            Paragraph(d.data_criacao.strftime('%d/%m/%Y'), cell_style_center),
+            Paragraph(d.cliente or '-', cell_style),
+            Paragraph(vendedor_nome, cell_style_center),
+            Paragraph(nf_cliente, cell_style_center),
+            Paragraph(nf_interna, cell_style_center),
+            Paragraph(d.status.replace('_', ' ').title(), cell_style_center),
+            Paragraph(f"R$ {d.valor:.2f}" if d.valor else "R$ 0.00", cell_style_center),
         ])
     
-    table = Table(data, colWidths=[3*cm, 5*cm, 3.5*cm, 3*cm, 3*cm, 3.5*cm, 2.5*cm])
+    table = Table(data, colWidths=[2.8*cm, 5*cm, 3*cm, 3.5*cm, 3.5*cm, 3.5*cm, 2.5*cm])
     
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2c3e50')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('ALIGN', (1, 1), (1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f4f7f6')])
     ])
     table.setStyle(table_style)
@@ -287,7 +322,7 @@ def gerar_relatorio_pdf():
         textColor=colors.grey,
         alignment=1
     )
-    agora = datetime.now().strftime('%d/%m/%Y às %H:%M')
+    agora = agora_brasilia().strftime('%d/%m/%Y às %H:%M')
     elements.append(Paragraph(f"Relatório gerado em {agora} | Sistema MIC", footer_style))
     
     doc.build(elements)
