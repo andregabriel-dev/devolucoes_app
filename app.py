@@ -72,7 +72,8 @@ def logout():
 @login_required
 def dashboard():
     busca = request.args.get('q', '')
-    
+    status_filtro = request.args.get('status', '')
+
     query = Devolucao.query
 
     if session['perfil'] == 'vendedor':
@@ -80,14 +81,27 @@ def dashboard():
 
     if busca:
         query = query.filter(
-            (Devolucao.cliente.ilike(f'%{busca}%')) | 
-            (Devolucao.nf_cliente.ilike(f'%{busca}%')) | 
+            (Devolucao.cliente.ilike(f'%{busca}%')) |
+            (Devolucao.nf_cliente.ilike(f'%{busca}%')) |
             (Devolucao.nf_interna.ilike(f'%{busca}%'))
         )
 
-    devolucoes = query.order_by(Devolucao.data_criacao.desc()).all()
-    
-    return render_template('dashboard.html', devolucoes=devolucoes, busca=busca)
+    if status_filtro:
+        query = query.filter(Devolucao.status == status_filtro)
+
+    # Ordena: pendentes primeiro, depois por data mais recente
+    from sqlalchemy import case
+    ordem_status = case(
+        (Devolucao.status == 'aguardando_conferencia', 1),
+        (Devolucao.status == 'aguardando_aprovacao', 2),
+        (Devolucao.status == 'em_transito', 3),
+        (Devolucao.status == 'entregue_fiscal', 4),
+        (Devolucao.status == 'finalizado_pago', 5),
+        else_=6
+    )
+    devolucoes = query.order_by(ordem_status, Devolucao.data_criacao.desc()).all()
+
+    return render_template('dashboard.html', devolucoes=devolucoes, busca=busca, status_filtro=status_filtro)
 
 # --- FLUXO DE DEVOLUÇÃO ---
 @app.route('/nova', methods=['GET', 'POST'])
