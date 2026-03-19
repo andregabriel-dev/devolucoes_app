@@ -170,6 +170,56 @@ def baixar_boleto(id):
     d.status, d.baixado_por, d.data_baixa = "finalizado_pago", session['nome'], agora_brasilia()
     db.session.commit(); return redirect(url_for('dashboard'))
 
+
+@app.route('/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('vendedor', 'conferente', 'gerente')
+def editar_devolucao(id):
+    d = Devolucao.query.get_or_404(id)
+
+    # Só quem criou pode editar, e só se ainda estiver aguardando validação
+    if d.vendedor_id != session['user_id'] and session['perfil'] != 'gerente':
+        flash("Você não tem permissão para editar esta devolução.")
+        return redirect(url_for('dashboard'))
+
+    if d.status != 'aguardando_conferencia':
+        flash("Esta devolução não pode mais ser editada pois já passou da etapa de validação.")
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        d.cliente = request.form['cliente']
+        d.nf_cliente = request.form['nf_cliente']
+        d.nf_interna = request.form['nf_interna']
+        d.valor = float(request.form['valor'])
+        d.motivo = request.form['motivo']
+
+        # Remover PDFs marcados
+        ids_remover = request.form.getlist('remover_pdf')
+        for pdf_id in ids_remover:
+            pdf = DevolucaoPDF.query.get(int(pdf_id))
+            if pdf and pdf.devolucao_id == d.id:
+                try:
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], pdf.nome_arquivo))
+                except:
+                    pass
+                db.session.delete(pdf)
+
+        # Adicionar novos PDFs
+        arquivos = request.files.getlist('pdf_notas')
+        for arquivo in arquivos:
+            if arquivo and arquivo.filename != '':
+                fname = secure_filename(arquivo.filename)
+                nome_unico = f"{d.id}_{fname}"
+                arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_unico))
+                pdf = DevolucaoPDF(devolucao_id=d.id, nome_arquivo=nome_unico)
+                db.session.add(pdf)
+
+        db.session.commit()
+        flash("Devolução atualizada com sucesso!")
+        return redirect(url_for('dashboard'))
+
+    return render_template('editar_devolucao.html', d=d)
+
 # --- USUÁRIOS ---
 @app.route('/usuarios')
 @roles_required('gerente')

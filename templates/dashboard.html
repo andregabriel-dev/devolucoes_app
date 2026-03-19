@@ -144,6 +144,9 @@
                 {% elif session['perfil'] == 'financeiro' and d.status == 'entregue_fiscal' %}
                     <a href="{{ url_for('baixar_boleto', id=d.id) }}" class="btn btn-success" style="background: #27ae60; border-color: #219150;">💰 Dar Baixa Final no Boleto</a>
                 {% endif %}
+            {% if d.status == 'aguardando_conferencia' and (session['user_id'] == d.vendedor_id or session['perfil'] == 'gerente') %}
+                <a href="{{ url_for('editar_devolucao', id=d.id) }}" class="btn" style="background: #7f8c8d; color: white;">✏️ Editar</a>
+            {% endif %}
             </div>
         </div>
 

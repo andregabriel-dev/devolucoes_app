@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="max-width: 600px; margin: 20px auto;">
+    <h2>✏️ Editar Devolução #{{ d.id }}</h2>
+    <hr>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <label>Cliente:</label>
+        <input type="text" name="cliente" value="{{ d.cliente }}" required>
+
+        <label>NF do Cliente:</label>
+        <input type="text" name="nf_cliente" value="{{ d.nf_cliente or '' }}" required>
+
+        <label>Nossa NF:</label>
+        <input type="text" name="nf_interna" value="{{ d.nf_interna or '' }}" required>
+
+        <label>Valor:</label>
+        <input type="number" step="0.01" name="valor" value="{{ d.valor }}" required>
+
+        <label>Motivo:</label>
+        <textarea name="motivo">{{ d.motivo }}</textarea>
+
+        {% if d.pdfs %}
+        <div style="margin: 15px 0; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <label style="margin-bottom: 8px; display: block;">PDFs atuais:</label>
+            {% for pdf in d.pdfs %}
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <a href="{{ url_for('static', filename='uploads/' + pdf.nome_arquivo) }}" target="_blank" class="btn btn-small">📄 PDF {{ loop.index }}</a>
+                    <label style="display: flex; align-items: center; gap: 5px; font-size: 13px; color: #c0392b; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="remover_pdf" value="{{ pdf.id }}"> Remover este PDF
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <label>Adicionar novos PDFs:</label>
+        <input type="file" name="pdf_notas" multiple accept="application/pdf">
+        <small style="color: #666;">Segure Ctrl (ou Cmd no Mac) para selecionar múltiplos arquivos</small>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">💾 Salvar Alterações</button>
+            <a href="{{ url_for('dashboard') }}" class="btn" style="background: #95a5a6; color: white; flex: 1; text-align: center;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
