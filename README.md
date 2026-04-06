@@ -21,30 +21,24 @@
     <td align="center"><b>Dashboard — Vendedor</b></td>
   </tr>
   <tr>
-    <td><img src="<img width="1568" height="758" alt="image" src="https://github.com/user-attachments/assets/e5112cd1-516d-4092-878d-c27ef61b225d" />
-/></td>
-    <td><img src="<img width="1568" height="347" alt="image" src="https://github.com/user-attachments/assets/b2574c6e-00a6-4752-aef4-5634006adaba" />
-" alt="Dashboard" width="400"/></td>
+    <td><img src="https://i.imgur.com/placeholder1.png" alt="Login" width="400"/></td>
+    <td><img src="https://i.imgur.com/placeholder2.png" alt="Dashboard" width="400"/></td>
   </tr>
   <tr>
     <td align="center"><b>Nova Devolução</b></td>
     <td align="center"><b>Dashboard — Gerente</b></td>
   </tr>
   <tr>
-    <td><img src="<img width="1568" height="659" alt="image" src="https://github.com/user-attachments/assets/2edaeee6-2ac0-455a-a322-c47ee68edb86" />
-" alt="Nova Devolução" width="400"/></td>
-    <td><img src="<img width="1568" height="410" alt="image" src="https://github.com/user-attachments/assets/3f61b49f-71d7-4385-9fa5-1c1b514f6963" />
-" alt="Gerente" width="400"/></td>
+    <td><img src="https://i.imgur.com/placeholder3.png" alt="Nova Devolução" width="400"/></td>
+    <td><img src="https://i.imgur.com/placeholder4.png" alt="Gerente" width="400"/></td>
   </tr>
   <tr>
     <td align="center"><b>Gestão de Usuários</b></td>
     <td align="center"><b>Geração de Relatório PDF</b></td>
   </tr>
   <tr>
-    <td><img src="<img width="1568" height="509" alt="image" src="https://github.com/user-attachments/assets/3dc7f341-287f-44e1-9d67-2c79bad0ff04" />
-" alt="Usuários" width="400"/></td>
-    <td><img src="<img width="681" height="553" alt="image" src="https://github.com/user-attachments/assets/26ff6656-b592-4150-a6e7-9290a357e584" />
-" alt="Relatório" width="400"/></td>
+    <td><img src="https://i.imgur.com/placeholder5.png" alt="Usuários" width="400"/></td>
+    <td><img src="https://i.imgur.com/placeholder6.png" alt="Relatório" width="400"/></td>
   </tr>
 </table>
 
