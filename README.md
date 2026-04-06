@@ -21,28 +21,26 @@
     <td align="center"><b>Dashboard — Vendedor</b></td>
   </tr>
   <tr>
-    <td><img src="https://i.imgur.com/placeholder1.png" alt="Login" width="400"/></td>
-    <td><img src="https://i.imgur.com/placeholder2.png" alt="Dashboard" width="400"/></td>
+    <td><img src="./screenshots/login.png" alt="Login" width="400"/></td>
+    <td><img src="./screenshots/dashboard-vendedor.png" alt="Dashboard Vendedor" width="400"/></td>
   </tr>
   <tr>
     <td align="center"><b>Nova Devolução</b></td>
     <td align="center"><b>Dashboard — Gerente</b></td>
   </tr>
   <tr>
-    <td><img src="https://i.imgur.com/placeholder3.png" alt="Nova Devolução" width="400"/></td>
-    <td><img src="https://i.imgur.com/placeholder4.png" alt="Gerente" width="400"/></td>
+    <td><img src="./screenshots/nova-devolucao.png" alt="Nova Devolução" width="400"/></td>
+    <td><img src="./screenshots/dashboard-gerente.png" alt="Dashboard Gerente" width="400"/></td>
   </tr>
   <tr>
     <td align="center"><b>Gestão de Usuários</b></td>
     <td align="center"><b>Geração de Relatório PDF</b></td>
   </tr>
   <tr>
-    <td><img src="https://i.imgur.com/placeholder5.png" alt="Usuários" width="400"/></td>
-    <td><img src="https://i.imgur.com/placeholder6.png" alt="Relatório" width="400"/></td>
+    <td><img src="./screenshots/usuarios.png" alt="Usuários" width="400"/></td>
+    <td><img src="./screenshots/relatorio.png" alt="Relatório" width="400"/></td>
   </tr>
 </table>
-
-> 💡 Para adicionar os screenshots: suba as imagens no próprio repositório (pasta `screenshots/`) e substitua os links acima pelo caminho relativo, ex: `./screenshots/login.png`
 
 ---
 
@@ -70,6 +68,7 @@ devolucoes_app/
 ├── Procfile            # Configuração para deploy
 ├── requirements.txt    # Dependências do projeto
 ├── static/             # Arquivos estáticos (CSS, uploads)
+├── screenshots/        # Screenshots do sistema
 └── templates/          # Templates HTML (Jinja2)
 ```
 
