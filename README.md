@@ -21,7 +21,7 @@
     <td align="center"><b>Dashboard — Vendedor</b></td>
   </tr>
   <tr>
-    <td><img src="./screenshots/login.png" alt="Login" width="400"/></td>
+    <td><img src="./screenshots/login.PNG" alt="Login" width="400"/></td>
     <td><img src="./screenshots/dashboard-vendedor.png" alt="Dashboard Vendedor" width="400"/></td>
   </tr>
   <tr>
