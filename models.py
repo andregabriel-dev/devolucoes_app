@@ -39,6 +39,8 @@ class Devolucao(db.Model):
     data_recebimento = db.Column(db.DateTime)
     baixado_por = db.Column(db.String(100))
     data_baixa = db.Column(db.DateTime)
+    entrada_fiscal_por = db.Column(db.String(100))
+    data_entrada_fiscal = db.Column(db.DateTime)
 
 class DevolucaoPDF(db.Model):
     id = db.Column(db.Integer, primary_key=True)

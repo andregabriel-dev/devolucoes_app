@@ -6,6 +6,9 @@ from datetime import datetime, timezone, timedelta
 from functools import wraps
 from werkzeug.utils import secure_filename
 
+# --- MIGRATE ---
+from flask_migrate import Migrate
+
 # --- RELATÓRIO EM PDF (SOMENTE GERENTE) ---
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
@@ -23,6 +26,8 @@ app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db.init_app(app)
+
+migrate = Migrate(app, db)
 
 with app.app_context():
     db.create_all()
@@ -95,8 +100,9 @@ def dashboard():
         (Devolucao.status == 'aguardando_conferencia', 1),
         (Devolucao.status == 'aguardando_aprovacao', 2),
         (Devolucao.status == 'em_transito', 3),
-        (Devolucao.status == 'entregue_fiscal', 4),
-        (Devolucao.status == 'finalizado_pago', 5),
+        (Devolucao.status == 'aguardando_fiscal', 4),
+        (Devolucao.status == 'entregue_fiscal', 5),
+        (Devolucao.status == 'finalizado_pago', 6),
         else_=6
     )
     devolucoes = query.order_by(ordem_status, Devolucao.data_criacao.desc()).all()
@@ -157,7 +163,7 @@ def aprovar_envio(id):
 @roles_required('vendedor', 'conferente', 'gerente')
 def receber_mercadoria(id):
     d = Devolucao.query.get_or_404(id)
-    d.status = "entregue_fiscal"
+    d.status = "aguardando_fiscal"
     d.recebido_por = session['nome']
     d.data_recebimento = agora_brasilia()
     db.session.commit()
@@ -178,7 +184,7 @@ def editar_devolucao(id):
     d = Devolucao.query.get_or_404(id)
 
     # Só quem criou pode editar, e só se ainda estiver aguardando validação
-    if d.vendedor_id != session['user_id'] and session['perfil'] != 'gerente':
+    if d.vendedor_id != session['user_id'] and session['perfil'] not in ['gerente']:
         flash("Você não tem permissão para editar esta devolução.")
         return redirect(url_for('dashboard'))
 
@@ -219,6 +225,18 @@ def editar_devolucao(id):
         return redirect(url_for('dashboard'))
 
     return render_template('editar_devolucao.html', d=d)
+
+
+@app.route('/dar_entrada_fiscal/<int:id>')
+@login_required
+@roles_required('fiscal', 'gerente')
+def dar_entrada_fiscal(id):
+    d = Devolucao.query.get_or_404(id)
+    d.status = "entregue_fiscal"
+    d.entrada_fiscal_por = session['nome']
+    d.data_entrada_fiscal = agora_brasilia()
+    db.session.commit()
+    return redirect(url_for('dashboard'))
 
 # --- USUÁRIOS ---
 @app.route('/usuarios')
