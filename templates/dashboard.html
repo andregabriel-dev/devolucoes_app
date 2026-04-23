@@ -143,10 +143,9 @@
             <span style="text-align: right;">🕒 {{ d.data_recebimento.strftime('%d/%m/%Y %H:%M') if d.data_recebimento
                 else '--' }}</span>
 
-            {% if d.entrada_fiscal_por %}
-            <span>📋 <b>Entrada Fiscal:</b> {{ d.entrada_fiscal_por or '--' }}</span>
-            <span style="text-align: right;">🕒 {{ d.data_entrada_fiscal.strftime('%d/%m/%Y %H:%M') if
-                d.data_entrada_fiscal else '--' }}</span>
+            {% if d.entrada_fiscal_por and d.data_entrada_fiscal %}
+            <span>📋 <b>Entrada Fiscal:</b> {{ d.entrada_fiscal_por }}</span>
+            <span style="text-align: right;">🕒 {{ d.data_entrada_fiscal.strftime('%d/%m/%Y %H:%M') }}</span>
             {% endif %}
 
             {% if d.status == 'finalizado_pago' %}
@@ -169,16 +168,16 @@
         <a href="{{ url_for('receber_mercadoria', id=d.id) }}" class="btn btn-success"
             style="background: #f39c12; border-color: #e67e22;">📦 Confirmar Chegada / Entregar Fiscal</a>
 
-        {% elif session['perfil'] == 'financeiro' and d.status == 'entregue_fiscal' %}
+        {% elif session['perfil'].lower() == 'fiscal' and d.status == 'aguardando_fiscal' %}
+        <a href="{{ url_for('dar_entrada_fiscal', id=d.id) }}" class="btn btn-success"
+             style="background: #149931; border-color: #11a030;">🚀 Entrada NF </a>
+
+    {% elif session['perfil'].lower() == 'financeiro' and d.status == 'entregue_fiscal' %}
         <a href="{{ url_for('baixar_boleto', id=d.id) }}" class="btn btn-success"
-            style="background: #27ae60; border-color: #219150;">💰 Dar Baixa Final no Boleto</a>
-        {% endif %}
-        {% if d.status == 'aguardando_conferencia' and (session['user_id'] == d.vendedor_id or session['perfil'] ==
-        'gerente') %}
-        <a href="{{ url_for('editar_devolucao', id=d.id) }}" class="btn" style="background: #7f8c8d; color: white;">✏️
-            Editar</a>
-        {% endif %}
-    </div>
+           style="background: #27ae60; border-color: #219150;">💰 Dar Baixa Final no Boleto</a>
+    {% endif %}
+
+    {# ... botão de editar ... #}
 </div>
 
 {% endfor %}
