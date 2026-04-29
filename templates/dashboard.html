@@ -1,191 +1,229 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div
-    style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-    <p style="margin: 0; color: #555;">Olá, <b>{{ session['nome'] }}</b> <span
-            style="font-size: 12px; background: #eee; padding: 2px 8px; border-radius: 10px;">{{
-            session['perfil'].upper() }}</span></p>
+<style>
+    .auditoria-container {
+        font-size: 13px;
+        color: #555;
+        background: #fcfcfc;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #eee;
+        margin-top: 15px;
+    }
+
+    .auditoria-linha {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .auditoria-linha:last-child {
+        border-bottom: none;
+    }
+
+    .auditoria-label {
+        min-width: 170px; /* Garante que os nomes comecem na mesma coluna */
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .auditoria-nome {
+        flex: 1;
+        color: #2c3e50;
+    }
+
+    .auditoria-data {
+        font-size: 11px;
+        color: #888;
+        min-width: 110px;
+        text-align: right;
+    }
+
+    .status-badge {
+        display: block;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+</style>
+
+<div style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <p style="margin: 0; color: #555;">Olá, <b>{{ session['nome'] }}</b> 
+            <span style="font-size: 11px; background: #eee; padding: 2px 8px; border-radius: 10px; margin-left: 5px;">
+                {{ session['perfil'].upper() }}
+            </span>
+        </p>
+        </div>
     <div style="margin-top: 10px;">
         {% if session['perfil'] in ['vendedor', 'conferente', 'gerente'] %}
-        <a href="{{ url_for('nova_devolucao') }}" class="btn btn-success" style="padding: 8px 15px;">➕ Nova
-            Devolução</a>
+        <a href="{{ url_for('nova_devolucao') }}" class="btn btn-success" style="padding: 8px 15px;">➕ Nova Devolução</a>
         {% endif %}
+        
         {% if session['perfil'] == 'gerente' %}
-        <a href="{{ url_for('listar_usuarios') }}" class="btn btn-primary"
-            style="padding: 8px 15px; margin-left: 5px;">👤 Usuários</a>
+        <a href="{{ url_for('listar_usuarios') }}" class="btn btn-primary" style="padding: 8px 15px; margin-left: 5px;">👤 Usuários</a>
         {% endif %}
-        <a href="{{ url_for('dashboard') }}" class="btn"
-            style="background: #95a5a6; color: white; padding: 8px 15px; margin-left: 5px;">🏠 Início</a>
+        
+        <a href="{{ url_for('dashboard') }}" class="btn" style="background: #95a5a6; color: white; padding: 8px 15px; margin-left: 5px;">🏠 Início</a>
     </div>
 </div>
 
-<!-- Filtros de Status -->
 <div style="margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
-
     {% set filtros = [
-    ('', '📋 Todos', '#2c3e50', '#eee', '#555'),
-    ('aguardando_conferencia', '🔍 Aguardando Validação', '#e67e22', '#fff3e0', '#e67e22'),
-    ('aguardando_aprovacao', '🛡️ Aguardando Aprovação', '#3498db', '#ebf5fb', '#3498db'),
-    ('em_transito', '🚚 Aguardando Chegada', '#f39c12', '#fef9e7', '#f39c12'),
-    ('aguardando_fiscal', '📋 Aguardando Fiscal', '#16a085', '#e8f8f5', '#16a085'),
-    ('entregue_fiscal', '💼 Aguardando Baixa no Boleto', '#8e44ad', '#f5eef8', '#8e44ad'),
-    ('finalizado_pago', '✅ Finalizados', '#27ae60', '#eafaf1', '#27ae60')
+        ('', '📋 Todos', '#2c3e50', '#eee', '#555'),
+        ('aguardando_conferencia', '🔍 Validação', '#e67e22', '#fff3e0', '#e67e22'),
+        ('aguardando_aprovacao', '🛡️ Aprovação', '#3498db', '#ebf5fb', '#3498db'),
+        ('em_transito', '🚚 Trânsito', '#f39c12', '#fef9e7', '#f39c12'),
+        ('aguardando_fiscal', '📋 Fiscal', '#16a085', '#e8f8f5', '#16a085'),
+        ('entregue_fiscal', '💼 Baixa Boleto', '#8e44ad', '#f5eef8', '#8e44ad'),
+        ('finalizado_pago', '✅ Finalizados', '#27ae60', '#eafaf1', '#27ae60')
     ] %}
 
     {% for valor, label, cor_ativa, cor_inativa, cor_texto_inativo in filtros %}
-    {% if status_filtro == valor %}
-    <a href="{{ url_for('dashboard', status=valor, q=busca or '') }}"
-        style="padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; background: {{ cor_ativa }}; color: white; border: 2px solid {{ cor_ativa }};">
-        {{ label }}
-    </a>
-    {% else %}
-    <a href="{{ url_for('dashboard', status=valor, q=busca or '') }}"
-        style="padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; background: {{ cor_inativa }}; color: {{ cor_texto_inativo }}; border: 2px solid {{ cor_ativa }};">
-        {{ label }}
-    </a>
-    {% endif %}
+        <a href="{{ url_for('dashboard', status=valor, q=busca or '') }}"
+           style="padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-decoration: none; 
+                  background: {{ cor_ativa if status_filtro == valor else cor_inativa }}; 
+                  color: {{ 'white' if status_filtro == valor else cor_texto_inativo }}; 
+                  border: 2px solid {{ cor_ativa }};">
+            {{ label }}
+        </a>
     {% endfor %}
-
 </div>
 
-<!-- Barra de busca -->
 <div class="card" style="background: #f8f9fa; padding: 15px; margin-bottom: 25px; border: 1px solid #e0e0e0;">
     <form method="GET" action="{{ url_for('dashboard') }}" style="display: flex; gap: 10px; margin: 0;">
         <input type="hidden" name="status" value="{{ status_filtro or '' }}">
-        <input type="text" name="q" value="{{ busca or '' }}"
-            placeholder="Pesquisar por Cliente, NF Cliente ou Nossa NF..."
-            style="flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
-        <button type="submit" class="btn btn-primary" style="background: #2c3e50; min-width: 100px;">🔍 Buscar</button>
+        <input type="text" name="q" value="{{ busca or '' }}" placeholder="Pesquisar cliente ou nota..."
+               style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+        <button type="submit" class="btn btn-primary" style="background: #2c3e50;">🔍 Buscar</button>
         {% if busca or status_filtro %}
-        <a href="{{ url_for('dashboard') }}" class="btn"
-            style="background: #bdc3c7; color: #fff; display: flex; align-items: center;">Limpar</a>
+            <a href="{{ url_for('dashboard') }}" class="btn" style="background: #bdc3c7; color: #fff;">Limpar</a>
         {% endif %}
     </form>
 </div>
 
 <h3 style="color: #2c3e50; margin-bottom: 20px;">
-    📋 Lista de Devoluções
+    📋 Devoluções 
     {% if devolucoes %}
-    <span style="font-size: 14px; font-weight: normal; color: #7f8c8d;">({{ devolucoes|length }} registro{{ 's' if
-        devolucoes|length != 1 else '' }})</span>
+    <small style="font-size: 14px; color: #7f8c8d;">({{ devolucoes|length }} registros)</small>
     {% endif %}
 </h3>
 
 {% if devolucoes %}
-{% for d in devolucoes %}
+    {% for d in devolucoes %}
+    
+    {# Lógica de Cores do Card #}
+    {% set cores = {
+        'aguardando_conferencia': '#e67e22',
+        'aguardando_aprovacao': '#3498db',
+        'em_transito': '#f39c12',
+        'aguardando_fiscal': '#16a085',
+        'entregue_fiscal': '#8e44ad',
+        'finalizado_pago': '#27ae60'
+    } %}
+    {% set card_cor = cores.get(d.status, '#ddd') %}
 
-{% if d.status == 'aguardando_conferencia' %}
-{% set card_cor = '#e67e22' %}
-{% set card_bg = '#fffaf5' %}
-{% elif d.status == 'aguardando_aprovacao' %}
-{% set card_cor = '#3498db' %}
-{% set card_bg = '#f5faff' %}
-{% elif d.status == 'em_transito' %}
-{% set card_cor = '#f39c12' %}
-{% set card_bg = '#fffdf0' %}
-{% elif d.status == 'aguardando_fiscal' %}
-{% set card_cor = '#16a085' %}
-{% set card_bg = '#e8f8f5' %}
-{% elif d.status == 'entregue_fiscal' %}
-{% set card_cor = '#8e44ad' %}
-{% set card_bg = '#fdf5ff' %}
-{% elif d.status == 'finalizado_pago' %}
-{% set card_cor = '#27ae60' %}
-{% set card_bg = '#f5fff8' %}
-{% else %}
-{% set card_cor = '#ddd' %}
-{% set card_bg = 'white' %}
-{% endif %}
+    <div class="card" style="border: 1px solid {{ card_cor }}; border-left: 6px solid {{ card_cor }}; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
 
-<div class="card"
-    style="border: 1px solid {{ card_cor }}; border-left: 5px solid {{ card_cor }}; padding: 20px; margin-bottom: 20px; border-radius: 12px; background: {{ card_bg }}; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-        <div>
-            <h4 style="margin: 0; color: #2c3e50; font-size: 1.2rem;">{{ d.cliente }}</h4>
-            <p style="margin: 5px 0; color: #7f8c8d; font-size: 0.9rem;">
-                <b>NF Cliente:</b> {{ d.nf_cliente or '---' }} | <b>Nossa NF:</b> {{ d.nf_interna or '---' }}
-            </p>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <div>
+                <h4 style="margin: 0; color: #2c3e50;">{{ d.cliente }}</h4>
+                <p style="margin: 5px 0; color: #7f8c8d; font-size: 0.9rem;">
+                    <b>NF Cliente:</b> {{ d.nf_cliente or '---' }} | <b>Nossa NF:</b> {{ d.nf_interna or '---' }}
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <span class="status-badge" style="background: {{ card_cor }};">
+                    {{ d.status.replace('_', ' ') }}
+                </span>
+                <small style="color: #999;">ID: #{{ d.id }}</small>
+            </div>
         </div>
-        <div style="text-align: right;">
-            <span
-                style="display: block; font-size: 13px; font-weight: bold; color: white; background: {{ card_cor }}; padding: 4px 10px; border-radius: 20px;">
-                {{ d.status.replace('_', ' ').upper() }}
-            </span>
-            <small style="color: #999; display: block; margin-top: 5px;">ID: #{{ d.id }}</small>
+
+        <div style="margin: 15px 0; border-top: 1px solid #f9f9f9; padding-top: 10px;">
+            <p style="margin: 3px 0;"><b>Valor:</b> R$ {{ "%.2f"|format(d.valor) }}</p>
+            <p style="margin: 3px 0;"><b>Motivo:</b> {{ d.motivo }}</p>
+            
+            <div style="margin-top: 10px;">
+                {% if d.pdfs %}
+                    {% for pdf in d.pdfs %}
+                    <a href="{{ url_for('static', filename='uploads/' + pdf.nome_arquivo) }}" target="_blank"
+                       style="text-decoration: none; font-size: 13px; color: #2980b9; margin-right: 15px; font-weight: bold;">
+                       📄 PDF {{ loop.index }}
+                    </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
-    </div>
 
-    <div style="margin: 15px 0;">
-        <p style="margin: 5px 0;"><b>Valor:</b> R$ {{ "%.2f"|format(d.valor) }}</p>
-        <p style="margin: 5px 0;"><b>Motivo:</b> {{ d.motivo }}</p>
-        {% if d.pdfs %}
-        {% for pdf in d.pdfs %}
-        <a href="{{ url_for('static', filename='uploads/' + pdf.nome_arquivo) }}" target="_blank"
-            class="btn btn-small">📄 Ver PDF {{ loop.index }}</a>
-        {% endfor %}
-        {% endif %}
-    </div>
+        <div class="auditoria-container" style="border-left: 4px solid {{ card_cor }};">
+            <div class="auditoria-linha">
+                <span class="auditoria-label">✅ Conferência:</span>
+                <span class="auditoria-nome">{{ d.conferido_por or '--' }}</span>
+                <span class="auditoria-data">🕒 {{ d.data_conferencia.strftime('%d/%m/%Y %H:%M') if d.data_conferencia else '--' }}</span>
+            </div>
 
-    <div
-        style="font-size:12px; color:#555; background:#fcfcfc; padding:12px; border-radius:8px; border: 1px solid #eee; border-left: 4px solid {{ card_cor }};">
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
-            <span>✅ <b>Conferência:</b> {{ d.conferido_por or '--' }}</span>
-            <span style="text-align: right;">🕒 {{ d.data_conferencia.strftime('%d/%m/%Y %H:%M') if d.data_conferencia
-                else '--' }}</span>
+            <div class="auditoria-linha">
+                <span class="auditoria-label">🛡️ Gerente:</span>
+                <span class="auditoria-nome">{{ d.aprovado_por or '--' }}</span>
+                <span class="auditoria-data">🕒 {{ d.data_aprovacao.strftime('%d/%m/%Y %H:%M') if d.data_aprovacao else '--' }}</span>
+            </div>
 
-            <span>🛡️ <b>Aprovação Gerente:</b> {{ d.aprovado_por or '--' }}</span>
-            <span style="text-align: right;">🕒 {{ d.data_aprovacao.strftime('%d/%m/%Y %H:%M') if d.data_aprovacao else
-                '--' }}</span>
+            <div class="auditoria-linha">
+                <span class="auditoria-label">📦 Recebido por:</span>
+                <span class="auditoria-nome">{{ d.recebido_por or '--' }}</span>
+                <span class="auditoria-data">🕒 {{ d.data_recebimento.strftime('%d/%m/%Y %H:%M') if d.data_recebimento else '--' }}</span>
+            </div>
 
-            <span>📦 <b>Recebido por:</b> {{ d.recebido_por or '--' }}</span>
-            <span style="text-align: right;">🕒 {{ d.data_recebimento.strftime('%d/%m/%Y %H:%M') if d.data_recebimento
-                else '--' }}</span>
-
-            {% if d.entrada_fiscal_por and d.data_entrada_fiscal %}
-            <span>📋 <b>Entrada Fiscal:</b> {{ d.entrada_fiscal_por }}</span>
-            <span style="text-align: right;">🕒 {{ d.data_entrada_fiscal.strftime('%d/%m/%Y %H:%M') }}</span>
+            {% if d.entrada_fiscal_por %}
+            <div class="auditoria-linha">
+                <span class="auditoria-label">📋 Entrada Fiscal:</span>
+                <span class="auditoria-nome">{{ d.entrada_fiscal_por }}</span>
+                <span class="auditoria-data">🕒 {{ d.data_entrada_fiscal.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
             {% endif %}
 
             {% if d.status == 'finalizado_pago' %}
-            <span style="color: #27ae60;">💰 <b>Baixa Financeiro:</b> {{ d.baixado_por or '--' }}</span>
-            <span style="text-align: right; color: #27ae60;">🕒 {{ d.data_baixa.strftime('%d/%m/%Y %H:%M') if
-                d.data_baixa else '--' }}</span>
+            <div class="auditoria-linha" style="color: #27ae60;">
+                <span class="auditoria-label">💰 Baixa Financeiro:</span>
+                <span class="auditoria-nome">{{ d.baixado_por or '--' }}</span>
+                <span class="auditoria-data">🕒 {{ d.data_baixa.strftime('%d/%m/%Y %H:%M') if d.data_baixa else '--' }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="margin-top:20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            {% if session['perfil'] in ['conferente', 'gerente'] and d.status == 'aguardando_conferencia' %}
+                <a href="{{ url_for('conferir_nota', id=d.id) }}" class="btn btn-success">✔️ Validar Nota</a>
+
+            {% elif session['perfil'] == 'gerente' and d.status == 'aguardando_aprovacao' %}
+                <a href="{{ url_for('aprovar_envio', id=d.id) }}" class="btn btn-success" style="background: #3498db; border-color: #2980b9;">🚀 Autorizar Envio</a>
+
+            {% elif session['perfil'] in ['vendedor', 'conferente', 'gerente'] and d.status == 'em_transito' %}
+                <a href="{{ url_for('receber_mercadoria', id=d.id) }}" class="btn btn-success" style="background: #f39c12; border-color: #e67e22;">📦 Confirmar Chegada</a>
+
+            {% elif session['perfil'].lower() == 'fiscal' and d.status == 'aguardando_fiscal' %}
+                <a href="{{ url_for('dar_entrada_fiscal', id=d.id) }}" class="btn btn-success" style="background: #149931; border-color: #11a030;">🚀 Entrada NF</a>
+
+            {% elif session['perfil'].lower() == 'financeiro' and d.status == 'entregue_fiscal' %}
+                <a href="{{ url_for('baixar_boleto', id=d.id) }}" class="btn btn-success" style="background: #27ae60; border-color: #219150;">💰 Baixar Boleto</a>
             {% endif %}
         </div>
     </div>
-
-    <div style="margin-top:20px; display: flex; gap: 10px; flex-wrap: wrap;">
-        {% if session['perfil'] in ['conferente', 'gerente'] and d.status == 'aguardando_conferencia' %}
-        <a href="{{ url_for('conferir_nota', id=d.id) }}" class="btn btn-success">✔️ Validar Nota Fiscal</a>
-
-        {% elif session['perfil'] == 'gerente' and d.status == 'aguardando_aprovacao' %}
-        <a href="{{ url_for('aprovar_envio', id=d.id) }}" class="btn btn-success"
-            style="background: #3498db; border-color: #2980b9;">🚀 Autorizar Envio (Aprovar)</a>
-
-        {% elif session['perfil'] in ['vendedor', 'conferente', 'gerente'] and d.status == 'em_transito' %}
-        <a href="{{ url_for('receber_mercadoria', id=d.id) }}" class="btn btn-success"
-            style="background: #f39c12; border-color: #e67e22;">📦 Confirmar Chegada / Entregar Fiscal</a>
-
-        {% elif session['perfil'].lower() == 'fiscal' and d.status == 'aguardando_fiscal' %}
-        <a href="{{ url_for('dar_entrada_fiscal', id=d.id) }}" class="btn btn-success"
-             style="background: #149931; border-color: #11a030;">🚀 Entrada NF </a>
-
-    {% elif session['perfil'].lower() == 'financeiro' and d.status == 'entregue_fiscal' %}
-        <a href="{{ url_for('baixar_boleto', id=d.id) }}" class="btn btn-success"
-           style="background: #27ae60; border-color: #219150;">💰 Dar Baixa Final no Boleto</a>
-    {% endif %}
-
-    {# ... botão de editar ... #}
-</div>
-
-{% endfor %}
+    {% endfor %}
 {% else %}
-<div style="text-align: center; padding: 50px; background: #fff; border-radius: 12px; border: 1px dashed #ccc;">
-    <p style="color: #7f8c8d; font-size: 1.1rem;">Nenhum registro encontrado.</p>
-    <a href="{{ url_for('dashboard') }}" style="color: #3498db; text-decoration: none;">Voltar para a lista completa</a>
-</div>
+    <div style="text-align: center; padding: 50px; background: #fff; border-radius: 12px; border: 1px dashed #ccc;">
+        <p style="color: #7f8c8d;">Nenhum registro encontrado.</p>
+        <a href="{{ url_for('dashboard') }}" style="color: #3498db; text-decoration: none;">Limpar filtros</a>
+    </div>
 {% endif %}
 
 {% endblock %}

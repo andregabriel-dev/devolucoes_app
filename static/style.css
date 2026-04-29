@@ -3,20 +3,18 @@
     --success: #27ae60; 
     --danger: #e74c3c; 
     --info: #3498db;
+    --warning: #f39c12; /* Adicionei para o status de transporte */
 }
 
 body { 
-    font-family: 'Segoe UI', sans-serif; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     background: #f4f7f6; 
     margin: 0; 
+    color: #333;
 }
 
-/* Estilo Login Lateral */
-.login-page { 
-    display: flex; 
-    height: 100vh; 
-}
-
+/* --- Layout de Login --- */
+.login-page { display: flex; height: 100vh; }
 .login-sidebar { 
     width: 400px; 
     background: white; 
@@ -27,17 +25,17 @@ body {
     box-shadow: 10px 0 20px rgba(0,0,0,0.05); 
     z-index: 10; 
 }
-
 .login-bg { 
     flex: 1; 
-    background: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174 ') no-repeat center center; 
+    background: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174') no-repeat center center; 
     background-size: cover; 
 }
 
+/* --- Cabeçalho e Navegação --- */
 .header-box { 
     background: var(--primary); 
     color: white; 
-    padding: 15px; 
+    padding: 15px 25px; 
     border-radius: 8px; 
     display: flex; 
     justify-content: space-between; 
@@ -45,83 +43,74 @@ body {
     margin-bottom: 20px; 
 }
 
-/* Menu de navegação */
-.menu-nav {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-/* Botões do menu */
-.btn-relatorio { 
-    background: var(--info); 
-    color: white; 
-    padding: 8px 15px; 
-    border-radius: 5px; 
-    text-decoration: none; 
-    font-weight: bold; 
-    border: none; 
-    cursor: pointer; 
-    display: inline-block;
-}
-
-.btn-relatorio:hover { 
-    background: #2980b9; 
-}
-
-.btn-logout { 
-    background: var(--danger); 
-    color: white; 
-    padding: 8px 15px; 
-    border-radius: 5px; 
-    text-decoration: none; 
-    font-weight: bold; 
-    border: none; 
-    cursor: pointer; 
-    display: inline-block;
-}
-
-.card { 
-    background: white; 
-    padding: 20px; 
-    border-radius: 10px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-    margin-bottom: 15px; 
-}
-
+/* --- Elementos de Interface (Botões e Inputs) --- */
 .btn { 
-    padding: 8px 15px; 
-    border-radius: 5px; 
+    padding: 10px 20px; 
+    border-radius: 6px; 
     text-decoration: none; 
-    font-weight: bold; 
+    font-weight: 600; 
     border: none; 
     cursor: pointer; 
     display: inline-block;
+    transition: all 0.3s ease;
 }
 
-.btn-success { 
-    background: var(--success); 
-    color: white; 
-}
+.btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-success { background: var(--success); color: white; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-danger { background: var(--danger); color: white; }
 
 input, select, textarea { 
     width: 100%; 
-    padding: 10px; 
+    padding: 12px; 
     margin: 10px 0; 
     border: 1px solid #ddd; 
-    border-radius: 5px; 
+    border-radius: 6px; 
     box-sizing: border-box; 
+    font-size: 14px;
 }
 
-/* Botão voltar */
-.btn-back {
-    display: inline-block;
-    margin-bottom: 20px;
-    color: var(--primary);
-    text-decoration: none;
+/* --- CORREÇÃO DE ALINHAMENTO (O que faltava) --- */
+.card { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+    margin-bottom: 20px; 
+}
+
+/* Quadro de Auditoria */
+.auditoria-container {
+    background: #fcfcfc;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-top: 15px;
+}
+
+.auditoria-linha {
+    display: flex;
+    justify-content: space-between; /* Empurra a data para a direita */
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.auditoria-linha:last-child { border-bottom: none; }
+
+.auditoria-label {
+    min-width: 180px; /* Alinha o início dos nomes */
     font-weight: bold;
+    color: #555;
 }
 
-.btn-back:hover {
-    text-decoration: underline;
+.auditoria-nome {
+    flex: 1; /* Ocupa o espaço central */
+    color: var(--primary);
+}
+
+.auditoria-data {
+    font-size: 11px;
+    color: #999;
+    text-align: right;
 }
